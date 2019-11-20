@@ -17,7 +17,7 @@ GCC ?= gcc
 BIN_DIR := ./bin
 SRC_DIR := ./src
 
-common_src := bareline.c bareline_builtin.c
+common_src += bareline.c bareline_builtin.c
 common_src := $(addprefix $(SRC_DIR)/,$(common_src))
 common_obj := $(common_src:$(SRC_DIR)/%.c=$(BIN_DIR)/%.o)
 
