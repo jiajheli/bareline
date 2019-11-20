@@ -13,6 +13,8 @@ endif
 
 BIN ?= bareline.out
 GCC ?= gcc
+LD ?= ld
+OD ?= objdump
 
 BIN_DIR := ./bin
 SRC_DIR := ./src
@@ -27,10 +29,13 @@ LDFLAGS := -static
 plat_src := $(addprefix $(PLAT)/,$(plat_src))
 plat_obj := $(plat_src:$(PLAT)/%.c=$(BIN_DIR)/%.o)
 
-all: $(BIN_DIR) $(BIN_DIR)/$(BIN)
+all: $(BIN_DIR) $(BIN_DIR)/$(BIN) $(BIN_DIR)/$(BIN)
 
 $(BIN_DIR)/$(BIN): $(common_obj) $(plat_obj)
 	$(LD) $(LDFLAGS) $(PLAT_LDFLAGS) $^ -o $@
+ifeq ($(DUMP),1)
+	$(OD) -Dlxt $@ > $(@:.out=.dump)
+endif
 
 $(common_obj): $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(GCC) $(CFLAGS) $(PLAT_CFLAGS) -c $^ -o $@

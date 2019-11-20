@@ -26,3 +26,4 @@ PLAT_LDFLAGS := -T $(PLAT)/$(PLAT).lds -emain -EB
 
 GCC := $(CROSS_COMPILE)gcc
 LD := $(CROSS_COMPILE)ld
+OD := $(CROSS_COMPILE)objdump
