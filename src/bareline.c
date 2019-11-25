@@ -251,7 +251,7 @@ static int bl_lb_vt100_udlr(line_t *line, history_t *hist) {
 		[2] = K_CTRL_F, //K_RIGHT
 		[3] = K_CTRL_B //K_LEFT
 	};
-	int input2;
+	unsigned char input2;
 
 	bl_getc();
 	input2 = (bl_getc() - 0x41);
