@@ -10,7 +10,7 @@ static inline void bl_putc(char c) {
 }
 
 static inline char bl_getc(void) {
-	return fgetc(stdin);
+	return (fgetc(stdin) & 0xff);
 }
 
 #endif
