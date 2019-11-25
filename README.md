@@ -1,5 +1,5 @@
 # Bareline
-Bareline is a command line interface (CLI) framework. It doesn't depend on other libraries. It doesn't allocate from data or BSS sections. It is can be easily brought up on bare metal environments.
+Bareline is a command line interface (CLI) framework. It doesn't depend on other libraries. It doesn't allocate from data or BSS sections. It can be easily brought up on bare metal environments.
 
 ## Highlights
 * Easy to port
