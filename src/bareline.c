@@ -472,14 +472,21 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	hist = (history_t *)(line->buf + line_sz_b + 1);
 	bl_hst_init(hist, sz - (hist->buf - buf));
 
+#if (TERM_KEY_TEST_MODE == 1)
+	bl_puts("Press 'CTRL + C' twice to exit key test mode\r\n");
+#else
 	bl_puts("Bareline starts\n\r]");
+#endif
 
-	cont = 1;
+	cont = 2;
 	while (cont) {
 		input = bl_getc();
 
 #if (TERM_KEY_TEST_MODE == 1)
-		bl_dbg_printf("%04d: %c(%d)", hist.next++, input, input);
+		bl_printf("Glyph: %c, Dec: %d, Hex: %02x\r\n", input, input, input);
+		if (input == K_CTRL_C) {
+			cont--;
+		}
 		continue;
 #endif
 
