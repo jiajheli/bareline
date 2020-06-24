@@ -5,7 +5,6 @@
 
 #define BL_BUFF_SZ_B 128
 #define BL_LINE_SZ_B 16
-#define BL_DEBUG 0
 
 int main(void) {
 	struct termios myterm_orig, myterm;

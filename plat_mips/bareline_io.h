@@ -4,6 +4,7 @@
 #include <printf.h>
 
 #define TERM_VT100 1
+#define BL_DEBUG 0
 
 #define O_THR (0x0)
 #define O_RBR (0x0)

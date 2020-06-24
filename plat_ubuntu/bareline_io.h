@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #define TERM_XTERM 1
+#define BL_DEBUG 0
 
 static inline void bl_putc(char c) {
 	putchar(c);
