@@ -28,10 +28,12 @@ LDFLAGS := -static
 
 plat_src := $(addprefix $(PLAT)/,$(plat_src))
 plat_obj := $(plat_src:$(PLAT)/%.c=$(BIN_DIR)/%.o)
+plat_asm := $(addprefix $(PLAT)/,$(plat_asm))
+plat_aobj := $(plat_asm:$(PLAT)/%.S=$(BIN_DIR)/%.o)
 
 all: $(BIN_DIR) $(BIN_DIR)/$(BIN) $(BIN_DIR)/$(BIN)
 
-$(BIN_DIR)/$(BIN): $(common_obj) $(plat_obj)
+$(BIN_DIR)/$(BIN): $(common_obj) $(plat_obj) $(plat_aobj)
 	$(LD) $(LDFLAGS) $(PLAT_LDFLAGS) $^ -o $@
 ifeq ($(DUMP),1)
 	$(OD) -Dlxt $@ > $(@:.out=.dump)
@@ -41,6 +43,9 @@ $(common_obj): $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(GCC) $(CFLAGS) $(PLAT_CFLAGS) -c $^ -o $@
 
 $(plat_obj): $(BIN_DIR)/%.o: $(PLAT)/%.c
+$(plat_aobj): $(BIN_DIR)/%.o: $(PLAT)/%.S
+
+$(plat_obj) $(plat_aobj):
 	$(GCC) $(CFLAGS) $(PLAT_CFLAGS) -c $^ -o $@
 
 $(BIN_DIR):
