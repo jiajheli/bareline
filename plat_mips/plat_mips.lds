@@ -1,5 +1,5 @@
 MEMORY {
-	ram (rwx) : ORIGIN = 0x80000000, LENGTH = 16K
+	ram (rwx) : ORIGIN = 0x80000000, LENGTH = 32K
 }
 SECTIONS {
 	. = ALIGN(4);
@@ -18,4 +18,6 @@ SECTIONS {
 		*(bl_cmd_tab)
 		__stop_bl_cmd_tab = .;
 	} >ram
+
+	_stack_start = ORIGIN(ram) + LENGTH(ram) - 8;
 }

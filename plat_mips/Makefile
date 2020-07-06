@@ -1,5 +1,6 @@
 common_src += printf.c
 plat_src := bareline_example.c
+plat_asm := start.S
 
 BIN := demo.out
 
@@ -22,7 +23,7 @@ PLAT_CFLAGS += -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL
 PLAT_CFLAGS += -DPRINTF_DISABLE_SUPPORT_PTRDIFF_T
 PLAT_CFLAGS += -DPRINTF_DISABLE_SUPPORT_LONG_LONG
 
-PLAT_LDFLAGS := -T $(PLAT)/$(PLAT).lds -emain -EB
+PLAT_LDFLAGS := -T $(PLAT)/$(PLAT).lds -emips_entry -EB
 
 GCC := $(CROSS_COMPILE)gcc
 LD := $(CROSS_COMPILE)ld
