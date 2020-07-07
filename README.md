@@ -69,3 +69,4 @@ Given a partial command followed by `tab`, Bareline completes it in line buffer 
 
 ## Acknowledgments
 Bareline uses `printf` by [mpaland/printf](https://github.com/mpaland/printf)@21eea6c.
+Bareline uses `xmodem' by [Thuffir/xmodem](https://github.com/Thuffir/xmodem)@8ca6c42.

@@ -1,4 +1,4 @@
-common_src += printf.c uart_16550.c
+common_src += printf.c uart_16550.c xmodem.c
 plat_src := bareline_example.c plat_dep.c
 plat_asm := start.S
 
