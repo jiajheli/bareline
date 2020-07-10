@@ -517,8 +517,9 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 			break;
 		case K_CTRL_C:
 			bl_lb_exit(line, hist);
-			// let "K_ENT" applies "exit" command
-		case K_ENT:
+			// let "K_LF/K_CR" (ENTER) applies "exit" command
+		case K_LF:
+		case K_CR:
 			cont = bl_lb_enter(line, hist);
 			break;
 		case K_TAB:

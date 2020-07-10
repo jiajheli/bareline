@@ -10,12 +10,6 @@
 #	define K_BSP 0x08
 #endif
 
-#if defined(BL_OVERRIDE_K_ENT)
-#	define K_ENT BL_OVERRIDE_K_ENT
-#else
-#	define K_ENT 0xd
-#endif
-
 #define SECTION_BL_CMD __attribute__ ((section ("bl_cmd")))
 
 #define NULL ((void *)0)
@@ -28,6 +22,8 @@
 #define K_CTRL_N 0x0e
 #define K_CTRL_P 0x10 //CTRL+P, prev. in history
 
+#define K_LF 0x0a
+#define K_CR 0x0d
 #define K_BEL 0x07
 #define K_ESC 0x1b
 
