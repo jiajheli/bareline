@@ -92,7 +92,7 @@ extern const cmd_tab_t cmd_tab;
 #	define REG8(addr) (*((volatile unsigned char *)addr))
 #endif
 
-int bl_atoi(const char *s);
+long bl_atoi(const char *s);
 void bl_memset(void *s, char c, int n);
 void *bl_memcpy(void *d, void *s, int l);
 void bl_puts(char *s);

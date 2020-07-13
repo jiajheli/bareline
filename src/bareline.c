@@ -54,8 +54,8 @@ static inline int is_hex_digit(char c) {
 	return ((c >= 'a') && (c <= 'f'));
 }
 
-int bl_atoi(const char *s) {
-	int result = 0;
+long bl_atoi(const char *s) {
+	long result = 0;
 	int mul = 10;
 	int digit;
 

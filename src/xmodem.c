@@ -354,7 +354,7 @@ int XmodemTransmit(FetchChunkType fetchChunk, void *ctx, int srcsz, int onek,
 #endif /* SUPPORT_XMODEM_TRANSMIT */
 
 static int do_xmodem(int argc, char **argv) {
-	int offset = 0;
+	long offset = 0;
 
 	if (argc != 2) {
 		bl_printf("%s [address]\r\n", argv[0]);
