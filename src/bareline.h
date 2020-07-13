@@ -1,6 +1,7 @@
 #ifndef _BARELINE_H_
 #define _BARELINE_H_ 1
 
+#include <stdint.h>
 #include <bareline_io.h>
 
 #if defined(TERM_XTERM) && (TERM_XTERM == 1)
@@ -95,5 +96,14 @@ int bl_atoi(const char *s);
 void bl_memset(void *s, char c, int n);
 void *bl_memcpy(void *d, void *s, int l);
 void bl_puts(char *s);
+
+uint32_t
+bl_uart_init(uint32_t baudrate, uint32_t base_clk_mhz);
+uint8_t bl_tstc(void);
+void bl_putc(char c);
+void bl_putc_rn(char c);
+uint8_t bl_getc(void);
+uint8_t bl_getc_nb(void);
+int bl_getc_to(const int to_us);
 
 #endif
