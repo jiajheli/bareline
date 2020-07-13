@@ -517,6 +517,12 @@ static void bl_dbg_dump_line(line_t *line) {
 /*************************
 	Core
 **************************/
+__attribute__ ((weak))
+void show_banner(void) {
+	bl_puts("Bareline starts\n\r]");
+	return;
+}
+
 void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	line_t *line;
 	history_t *hist;
@@ -539,7 +545,7 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 #if (TERM_KEY_TEST_MODE == 1)
 	bl_puts("Press 'CTRL + C' twice to exit key test mode\r\n");
 #else
-	bl_puts("Bareline starts\n\r]");
+	show_banner();
 #endif
 
 	cont = 2;
