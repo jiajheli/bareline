@@ -15,6 +15,7 @@ BIN ?= bareline.out
 GCC ?= gcc
 LD ?= ld
 OD ?= objdump
+OC ?= objcopy
 
 BIN_DIR := ./bin
 SRC_DIR := ./src
@@ -37,6 +38,9 @@ $(BIN_DIR)/$(BIN): $(common_obj) $(plat_obj) $(plat_aobj)
 	$(LD) $(LDFLAGS) $(PLAT_LDFLAGS) $^ -o $@
 ifeq ($(DUMP),1)
 	$(OD) -Dlxt $@ > $(@:.out=.dump)
+endif
+ifeq ($(BINARY),1)
+	$(OC) --gap-fill=0x00 -O binary $@ $(@:.out=.bin)
 endif
 
 $(common_obj): $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
