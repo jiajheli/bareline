@@ -355,6 +355,13 @@ int XmodemTransmit(FetchChunkType fetchChunk, void *ctx, int srcsz, int onek,
 
 static int do_xmodem(int argc, char **argv) {
 	long offset = 0;
+	int res;
+	char *result_msg[] = {
+		"\r\n## %d (0x%08x) bytes received\r\n", // >= 0
+		"\r\nEE: canceled by remote\r\n", // == -1
+		"\r\nEE: sync error\r\n", // == -2
+		"\r\nEE: too many retry error\r\n", // == -3
+	};
 
 	if (argc != 2) {
 		bl_printf("%s [address]\r\n", argv[0]);
@@ -365,7 +372,13 @@ static int do_xmodem(int argc, char **argv) {
 
 	bl_printf("## Waiting binary to 0x%08x ...\r\n", offset);
 
-	XmodemReceive(0, (void *)offset, 5 * 1024 * 1024, 1, 0);
+	res = XmodemReceive(0, (void *)offset, 5 * 1024 * 1024, 1, 0);
+
+	if (res >= 0) {
+		bl_printf(result_msg[0], res, res);
+	} else {
+		bl_puts(result_msg[res*-1]);
+	}
 
 	return 0;
 }
