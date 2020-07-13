@@ -45,6 +45,70 @@ static int bl_get_arguments(char *cmd, char **argv) {
 	return argc;
 }
 
+static inline int is_digit(char c) {
+	return ((c >= '0') && (c <= '9'));
+}
+
+static inline int is_hex_digit(char c) {
+	c |= 0x20; //force to lower case
+	return ((c >= 'a') && (c <= 'f'));
+}
+
+int bl_atoi(const char *s) {
+	int result = 0;
+	int mul = 10;
+	int digit;
+
+	while (*s == '0') {
+		s++;
+	}
+
+	if (*s == 'x') {
+		mul = 16;
+		s++;
+	}
+
+	while (is_digit(*s) || is_hex_digit(*s)) {
+		if (is_digit(*s)) {
+			digit = (*s & 0xf);
+		} else {
+			digit = ((*s & 0xf) + 9);
+		}
+		result = result * mul + digit;
+		s++;
+	}
+
+	return result;
+}
+
+void bl_memset(void *s, char c, int n) {
+	char *p = (char *)s;
+
+	while (n--) {
+		*p++ = c;
+	}
+	return;
+}
+
+void *bl_memcpy(void *d, void *s, int l) {
+	char *_d = (char *)d;
+	char *_s = (char *)s;
+
+	while (l--) {
+		*_d++ = *_s++;
+	}
+
+	return d;
+}
+
+void bl_puts(char *s) {
+	while (*s) {
+		bl_putc(*s);
+		s++;
+	}
+	return;
+}
+
 /*************************
 	History management
 **************************/

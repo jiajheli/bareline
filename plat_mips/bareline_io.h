@@ -16,10 +16,6 @@
 #	define LSR_THRE (0x20)
 #	define LSR_RFE (0x80)
 
-#ifndef REG8
-#	define REG8(addr) (*((volatile unsigned char *)addr))
-#endif
-
 #ifndef UART_BASE_ADDR
 #	error EE: UART_BASE_ADDR is undefined
 #endif

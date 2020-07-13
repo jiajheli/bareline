@@ -16,10 +16,6 @@
 #	define LSR_THRE (0x20)
 #	define LSR_RFE (0x80)
 
-#ifndef REG8
-#	define REG8(addr) (*((volatile unsigned char *)addr))
-#endif
-
 #define UART_BASE_ADDR (0x3f215040)
 #define UART_REG(off) REG8(UART_BASE_ADDR +off)
 

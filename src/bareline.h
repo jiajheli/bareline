@@ -82,73 +82,18 @@ extern const cmd_tab_t cmd_tab;
 #define bl_printf(...) printf(__VA_ARGS__)
 
 #if defined(BL_DEBUG) && (BL_DEBUG == 1)
-	#define bl_dbg_printf(...) printf(__VA_ARGS__)
+#	define bl_dbg_printf(...) printf(__VA_ARGS__)
 #else
-	#define bl_dbg_printf(...)
+#	define bl_dbg_printf(...)
 #endif
 
-static inline void bl_puts(char *s) {
-	while (*s) {
-		bl_putc(*s);
-		s++;
-	}
-	return;
-}
+#ifndef REG8
+#	define REG8(addr) (*((volatile unsigned char *)addr))
+#endif
 
-static inline void bl_memset(void *s, char c, int n) {
-	char *p = (char *)s;
-
-	while (n--) {
-		*p++ = c;
-	}
-	return;
-}
-
-static inline void *bl_memcpy(void *d, void *s, int l) {
-	char *_d = (char *)d;
-	char *_s = (char *)s;
-
-	while (l--) {
-		*_d++ = *_s++;
-	}
-
-	return d;
-}
-
-static inline int is_digit(char c) {
-	return ((c >= '0') && (c <= '9'));
-}
-
-static inline int is_hex_digit(char c) {
-	c |= 0x20; //force to lower case
-	return ((c >= 'a') && (c <= 'f'));
-}
-
-static inline int bl_atoi(const char *s) {
-	int result = 0;
-	int mul = 10;
-	int digit;
-
-	while (*s == '0') {
-		s++;
-	}
-
-	if (*s == 'x') {
-		mul = 16;
-		s++;
-	}
-
-	while (is_digit(*s) || is_hex_digit(*s)) {
-		if (is_digit(*s)) {
-			digit = (*s & 0xf);
-		} else {
-			digit = ((*s & 0xf) + 9);
-		}
-		result = result * mul + digit;
-		s++;
-	}
-
-	return result;
-}
+int bl_atoi(const char *s);
+void bl_memset(void *s, char c, int n);
+void *bl_memcpy(void *d, void *s, int l);
+void bl_puts(char *s);
 
 #endif
