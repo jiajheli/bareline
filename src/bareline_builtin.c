@@ -16,7 +16,7 @@ static int do_help(int argc, char **argv) {
 
 	cmd = (bl_cmd_t *)cmd_tab.start;
 	while (cmd < (bl_cmd_t *)cmd_tab.end) {
-		bl_printf("%s: %s\n\r", cmd->cmd, cmd->help);
+		bl_printf("%s: %s\n", cmd->cmd, cmd->help);
 		cmd++;
 	}
 	return 0;
@@ -38,19 +38,19 @@ static int do_md(int argc, char **argv) {
 		addr = (int *)(bl_atoi(argv[1]) & 0xfffffffc);
 		break;
 	default:
-		bl_puts("md address [count]\n\r");
+		bl_puts("md address [count]\n");
 		return 0;
 	}
 
 	while (i < iter) {
 		if (!(i % 4)) {
 			bl_printf("%s%p: ", nl, addr);
-			nl = "\n\r";
+			nl = "\n";
 		}
 		bl_printf("%08x ", *addr);
 		addr++; i++;
 	}
-	bl_puts("\n\r");
+	bl_puts("\n");
 
 	return 0;
 }
@@ -62,7 +62,7 @@ BL_REG_CMD(md, do_md, "dump 4-byte word(s) of given address(es)");
 static int do_mw(int argc, char **argv) {
 	int *addr, val;
 
-	if (argc != 3) bl_puts("mw address value\n\r");
+	if (argc != 3) bl_puts("mw address value\n");
 
 	addr = (int *)(bl_atoi(argv[1]) & 0xfffffffc);
 	val = bl_atoi(argv[2]);

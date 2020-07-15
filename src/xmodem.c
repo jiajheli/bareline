@@ -357,20 +357,20 @@ static int do_xmodem(int argc, char **argv) {
 	long offset = 0;
 	int res;
 	char *result_msg[] = {
-		"\r\n## %d (0x%08x) bytes received\r\n", // >= 0
-		"\r\nEE: canceled by remote\r\n", // == -1
-		"\r\nEE: sync error\r\n", // == -2
-		"\r\nEE: too many retry error\r\n", // == -3
+		"\n## %d (0x%08x) bytes received\n", // >= 0
+		"\nEE: canceled by remote\n", // == -1
+		"\nEE: sync error\n", // == -2
+		"\nEE: too many retry error\n", // == -3
 	};
 
 	if (argc != 2) {
-		bl_printf("%s [address]\r\n", argv[0]);
+		bl_printf("%s [address]\n", argv[0]);
 		return 0;
 	}
 
 	offset = bl_atoi(argv[1]);
 
-	bl_printf("## Waiting binary to 0x%08x ...\r\n", offset);
+	bl_printf("## Waiting binary to 0x%08x ...\n", offset);
 
 	res = XmodemReceive(0, (void *)offset, 5 * 1024 * 1024, 1, 0);
 

@@ -137,7 +137,7 @@ void bl_putc_rn(char c) {
 
 void bl_puts(char *s) {
 	while (*s) {
-		bl_putc(*s);
+		bl_putc_rn(*s);
 		s++;
 	}
 	return;
@@ -263,7 +263,7 @@ static void bl_lb_add_char(line_t *line, history_t *hist, char input) {
 
 	if (line->len < line->sz_b) {
 		if (!(is_plain_char(input))) {
-			bl_dbg_printf("EE: Unknown key pressed: %c(%d)\n\r", input, input);
+			bl_dbg_printf("EE: Unknown key pressed: %c(%d)\n", input, input);
 			return;
 		}
 
@@ -320,7 +320,7 @@ static int bl_lb_enter(line_t *line, history_t *hist) {
 
 	if (line->len) {
 		bl_hst_append_line(line, hist);
-		bl_puts("\n\r");
+		bl_puts("\n");
 		cont = !bl_ctab_lookup(line->buf, &cmd_tab, bl_cmd_run);
 		bl_lb_reset(line);
 	}
@@ -356,7 +356,7 @@ static int bl_lb_vt100_udlr(line_t *line, history_t *hist) {
 	if (input2 < 4) {
 		return dir_map[input2];
 	} else {
-		bl_dbg_printf("EE: ESC + unknown key pressed: %c(%d)\n\r", input2, input2);
+		bl_dbg_printf("EE: ESC + unknown key pressed: %c(%d)\n", input2, input2);
 		return 0xff;
 	}
 }
@@ -385,7 +385,7 @@ static int bl_cmd_run(int ac, char** av, int cc, void **_cv) {
 	if (cc == 1) {
 		return cv[0]->func(ac, av);
 	}
-	bl_puts("EE: command not found\n\r");
+	bl_puts("EE: command not found\n");
 	return 0;
 }
 
@@ -451,12 +451,12 @@ static int bl_ctab_cmplt(int ac, char** av, int cc, void **_cv) {
 		if (cc == 1) {
 			return bl_n_strcpy(av[0], (*cv)->cmd);
 		} else {
-			bl_puts("\n\r");
+			bl_puts("\n");
 			while (cc--) {
 				bl_printf("%s ", (*cv)->cmd);
 				cv++;
 			}
-			bl_puts("\n\r");
+			bl_puts("\n");
 		}
 	}
 	return 0;
@@ -476,14 +476,14 @@ static void bl_dbg_dump_history(history_t *hist) {
 	buf = hist->buf;
 
 	bl_printf(
-		"\n\rDD: history: %p, buf: %p, sizeof(history_t): %d, sizeof(buf): %d",
+		"\nDD: history: %p, buf: %p, sizeof(history_t): %d, sizeof(buf): %d",
 		hist, (void *)buf, sizeof(history_t), hist->sz_b);
-	bl_printf("\n\rDD: next: %d, cur: %d, latest: %d", next, cur, latest);
+	bl_printf("\nDD: next: %d, cur: %d, latest: %d", next, cur, latest);
 
 	i = 0;
 	while (i < hist->sz_b) {
 		if ((i%16) == 0) {
-			bl_dbg_printf("\n\rDD: %02x: ", i);
+			bl_dbg_printf("\nDD: %02x: ", i);
 		}
 
 		bl_putc(' ');
@@ -509,7 +509,7 @@ static void bl_dbg_dump_history(history_t *hist) {
 		}
 		i++;
 	}
-	bl_dbg_printf("\n\r");
+	bl_dbg_printf("\n");
 
 	return;
 }
@@ -519,31 +519,31 @@ static void bl_dbg_dump_line(line_t *line) {
 	const int line_t_sz_b = sizeof(line_t) + line->sz_b + 1;
 
 	bl_printf(
-		"\n\rDD: line: %p, line->buf %p, sizeof(line_t): %d, sizeof(buf): %d\n\r",
+		"\nDD: line: %p, line->buf %p, sizeof(line_t): %d, sizeof(buf): %d\n",
 		line, line->buf, sizeof(line_t), line->sz_b + 1);
-	bl_printf("DD: cursor: %d, len: %d\n\r", line->cursor, line->len);
+	bl_printf("DD: cursor: %d, len: %d\n", line->cursor, line->len);
 
 	for (i=0; i<(line_t_sz_b - sizeof(line_t)); i++) {
 		bl_printf("  %d", i/10);
 	}
-	bl_puts("\n\r");
+	bl_puts("\n");
 
 	for (i=0; i<(line_t_sz_b - sizeof(line_t)); i++) {
 		bl_printf("  %d", i%10);
 	}
-	bl_puts("\n\r");
+	bl_puts("\n");
 
 	for (i=0; i<=line->len; i++) {
 		bl_puts("   ");
 		if (i == line->cursor) bl_puts("\b\bC ");
 		if (i == line->len-1) bl_puts("\bE");
 	}
-	bl_puts("\n\r");
+	bl_puts("\n");
 
 	for (i=0; i<(line_t_sz_b - sizeof(line_t)); i++) {
 		bl_printf(" %02x", line->buf[i]);
 	}
-	bl_puts("\n\r]");
+	bl_puts("\n]");
 	return;
 }
 #endif
@@ -553,7 +553,7 @@ static void bl_dbg_dump_line(line_t *line) {
 **************************/
 __attribute__ ((weak))
 void show_banner(void) {
-	bl_puts("Bareline starts\n\r]");
+	bl_puts("Bareline starts\n]");
 	return;
 }
 
@@ -566,7 +566,7 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	int cont;
 
 	if (sz < line_sz_b) {
-		bl_puts("EE: line buffer too small\n\r");
+		bl_puts("EE: line buffer too small\n");
 		return;
 	}
 
@@ -577,7 +577,7 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	bl_hst_init(hist, sz - (hist->buf - buf));
 
 #if (TERM_KEY_TEST_MODE == 1)
-	bl_puts("Press 'CTRL + C' twice to exit key test mode\r\n");
+	bl_puts("Press 'CTRL + C' twice to exit key test mode\n");
 #else
 	show_banner();
 #endif
@@ -587,7 +587,7 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 		input = bl_getc();
 
 #if (TERM_KEY_TEST_MODE == 1)
-		bl_printf("Glyph: %c, Dec: %d, Hex: %02x\r\n", input, input, input);
+		bl_printf("Glyph: %c, Dec: %d, Hex: %02x\n", input, input, input);
 		if (input == K_CTRL_C) {
 			cont--;
 		}
