@@ -3,12 +3,6 @@
 #define BL_BUFF_SZ_B 128
 #define BL_LINE_SZ_B 16
 
-/* bl_putc wrapper for printf */
-void _putchar(char character) {
-	bl_putc(character);
-	return;
-}
-
 int main(void) {
 	char bl_buf[BL_BUFF_SZ_B];
 

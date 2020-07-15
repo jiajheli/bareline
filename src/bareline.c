@@ -134,6 +134,8 @@ void bl_putc_rn(char c) {
 
 	return;
 }
+/* wrapper func. for printf */
+void _putchar(char) __attribute__ ((alias ("bl_putc_rn")));
 
 void bl_puts(char *s) {
 	while (*s) {
