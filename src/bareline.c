@@ -582,6 +582,8 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 			input = bl_lb_vt100_udlr(line, hist);
 			goto __reentrant_for_vt100;
 			break;
+		case K_CTRL_D:
+			bl_lb_cursor_right(line, hist);
 		case K_BSP:
 			bl_lb_del_char(line, hist);
 			break;

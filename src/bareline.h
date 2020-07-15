@@ -18,6 +18,7 @@
 #define K_CTRL_A 0x01
 #define K_CTRL_B 0x02
 #define K_CTRL_C 0x03
+#define K_CTRL_D 0x04
 #define K_CTRL_E 0x05
 #define K_CTRL_F 0x06
 #define K_CTRL_N 0x0e
