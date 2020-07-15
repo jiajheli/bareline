@@ -46,46 +46,12 @@ void bl_putc(char c) {
 	return;
 }
 
-void bl_putc_rn(char c) {
-	if (c == '\n') {
-		bl_putc('\r');
-	}
-
-	bl_putc(c);
-
-	return;
-}
-
 uint8_t bl_tstc(void) {
 	return (UART_REG(O_LSR) & (LSR_RFE | LSR_FE | LSR_PE | LSR_OE | LSR_DR)) == LSR_DR;
 }
 
 uint8_t bl_getc_nb(void) {
 	return UART_REG(O_RBR);
-}
-
-int bl_getc_to(const int to_us) {
-	const int32_t poll_period_us = 10;
-	int32_t tick = 0;
-
-	do {
-		if (bl_tstc()) {
-			return bl_getc_nb();
-		}
-
-		udelay(poll_period_us);
-
-		if (to_us == -1) continue;
-
-	} while ((tick++ * poll_period_us) < to_us);
-
-	return -1;
-}
-
-uint8_t bl_getc(void) {
-	while (!bl_tstc());
-
-	return bl_getc_nb();
 }
 
 static void

@@ -101,6 +101,40 @@ void *bl_memcpy(void *d, void *s, int l) {
 	return d;
 }
 
+int bl_getc_to(const int to_us) {
+	const int32_t poll_period_us = 10;
+	int32_t tick = 0;
+
+	do {
+		if (bl_tstc()) {
+			return bl_getc_nb();
+		}
+
+		udelay(poll_period_us);
+
+		if (to_us == -1) continue;
+
+	} while ((tick++ * poll_period_us) < to_us);
+
+	return -1;
+}
+
+uint8_t bl_getc(void) {
+	while (!bl_tstc());
+
+	return bl_getc_nb();
+}
+
+void bl_putc_rn(char c) {
+	if (c == '\n') {
+		bl_putc('\r');
+	}
+
+	bl_putc(c);
+
+	return;
+}
+
 void bl_puts(char *s) {
 	while (*s) {
 		bl_putc(*s);
