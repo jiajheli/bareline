@@ -4,7 +4,6 @@
 	Common
 **************************/
 static int bl_cmd_run(int ac, char** av, int cc, void **_cv);
-static int bl_ctab_lookup(char *cmdline, const cmd_tab_t *ctab, cmd_act_fp action);
 static int bl_ctab_cmplt(int ac, char** av, int cc, void **_cv);
 
 const cmd_tab_t cmd_tab = {
@@ -33,6 +32,7 @@ static int bl_get_arguments(char *cmd, char **argv) {
 	char last = 0;
 
 	do {
+		/* if cmd[i-1] is space and cmd[i] is not space */
 		if (((last | ' ') == ' ') && ((*cmd | ' ') != ' ')) {
 			if (argv) {
 				argv[argc] = cmd;
@@ -381,11 +381,25 @@ static inline int not_space_eol(char c) {
 	return (c & (~(' ')));
 }
 
+void bl_cmd_syntax(bl_cmd_t *cmd) {
+	bl_printf("%s, %s\n", cmd->cmd, cmd->help);
+	if (cmd->syntax) {
+		bl_printf("syntax: %s %s\n", cmd->cmd, cmd->syntax);
+	}
+	return;
+}
+
 static int bl_cmd_run(int ac, char** av, int cc, void **_cv) {
 	bl_cmd_t **cv = (bl_cmd_t **)_cv;
 
 	if (cc == 1) {
-		return cv[0]->func(ac, av);
+		if (ac < cv[0]->req_argc) {
+			bl_puts("EE: syntax error: ");
+			bl_cmd_syntax(cv[0]);
+			return 0;
+		} else {
+			return cv[0]->func(ac, av);
+		}
 	}
 	bl_puts("EE: command not found\n");
 	return 0;
@@ -423,7 +437,7 @@ static int bl_cmd_retrieve(char *needle, const cmd_tab_t *ctab, void *strv[]) {
 	return i;
 }
 
-static int bl_ctab_lookup(char *cmdline, const cmd_tab_t *ctab, cmd_act_fp action) {
+int bl_ctab_lookup(char *cmdline, const cmd_tab_t *ctab, cmd_act_fp action) {
 	int argc, cmdc;
 	char **argv;
 	void **cmdv;

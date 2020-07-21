@@ -6,22 +6,46 @@
 static int do_exit(int argc, char **argv) {
 	return 1;
 }
-BL_REG_CMD(exit, do_exit, "exit bareline");
+BL_REG_CMD(exit, do_exit, 1, "exit bareline", NULL);
 
 /*************************
 	command: help
 **************************/
+static int bl_help_syntax(int ac, char** av, int cc, void **_cv) {
+	bl_cmd_t **cv = (bl_cmd_t **)_cv;
+
+	if (cc) {
+		while (cc--) {
+			bl_cmd_syntax(*cv++);
+			if (cc) {
+				bl_puts("\n");
+			}
+		}
+	} else {
+		bl_puts("EE: command not found\n");
+	}
+
+	return 0;
+}
+
 static int do_help(int argc, char **argv) {
 	bl_cmd_t *cmd;
 
-	cmd = (bl_cmd_t *)cmd_tab.start;
-	while (cmd < (bl_cmd_t *)cmd_tab.end) {
-		bl_printf("%s: %s\n", cmd->cmd, cmd->help);
-		cmd++;
+	if (argc == 2) {
+		return bl_ctab_lookup(argv[1], &cmd_tab, bl_help_syntax);
+	} else {
+		cmd = (bl_cmd_t *)cmd_tab.start;
+		while (cmd < (bl_cmd_t *)cmd_tab.end) {
+			bl_printf("%s: %s\n", cmd->cmd, cmd->help);
+			cmd++;
+		}
+		return 0;
 	}
-	return 0;
 }
-BL_REG_CMD(help, do_help, "list all commands");
+BL_REG_CMD(
+	help, do_help, 1, "help message",
+	"[cmd]\n"
+	"  if `cmd' is given, show the associated syntax; otherwise list all commands");
 
 /*************************
 	command: md
@@ -38,7 +62,6 @@ static int do_md(int argc, char **argv) {
 		addr = (int *)(bl_atoi(argv[1]) & 0xfffffffc);
 		break;
 	default:
-		bl_puts("md address [count]\n");
 		return 0;
 	}
 
@@ -54,15 +77,16 @@ static int do_md(int argc, char **argv) {
 
 	return 0;
 }
-BL_REG_CMD(md, do_md, "dump 4-byte word(s) of given address(es)");
+BL_REG_CMD(
+	md, do_md, 2, "dump 4-byte integer(s) of given address(es)",
+	"address [count=1]\n"
+	"  Dump `count' integers from `address'. Default count = 1");
 
 /*************************
 	command: mw
 **************************/
 static int do_mw(int argc, char **argv) {
 	int *addr, val;
-
-	if (argc != 3) bl_puts("mw address value\n");
 
 	addr = (int *)(bl_atoi(argv[1]) & 0xfffffffc);
 	val = bl_atoi(argv[2]);
@@ -71,4 +95,7 @@ static int do_mw(int argc, char **argv) {
 
 	return 0;
 }
-BL_REG_CMD(mw, do_mw, "write a 4-byte word to a given address");
+BL_REG_CMD(
+	mw, do_mw, 3, "write a 4-byte integer",
+	"address value\n"
+	"  write `value' to `address'");

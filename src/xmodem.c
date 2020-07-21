@@ -363,11 +363,6 @@ static int do_xmodem(int argc, char **argv) {
 		"\nEE: too many retry error\n", // == -3
 	};
 
-	if (argc != 2) {
-		bl_printf("%s [address]\n", argv[0]);
-		return 0;
-	}
-
 	offset = bl_atoi(argv[1]);
 
 	bl_printf("## Waiting binary to 0x%08x ...\n", offset);
@@ -382,4 +377,7 @@ static int do_xmodem(int argc, char **argv) {
 
 	return 0;
 }
-BL_REG_CMD(xm, do_xmodem, "xmodem-1k");
+BL_REG_CMD(
+	xm, do_xmodem, 2, "xmodem-1k receiver",
+	"address\n"
+	"  receive from UART and store data to `address'");

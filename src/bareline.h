@@ -40,8 +40,8 @@
 #define VT100_ERASE_LINE "\r\x1b[2K]"
 #define VT100_CURSOR_FW "\x1b[C"
 
-#define BL_REG_CMD(cmd, func, help)														\
-	bl_cmd_t _bl_cmd_##cmd SECTION_BL_CMD = {#cmd, func, help}
+#define BL_REG_CMD(cmd, func, req, help, syntax) \
+	bl_cmd_t _bl_cmd_##cmd SECTION_BL_CMD = {#cmd, func, req, help, syntax}
 
 #define BL_MATCH_SOME 1
 #define BL_MATCH_NONE 0
@@ -59,7 +59,9 @@ typedef struct {
 typedef struct {
 	char *cmd;
 	int (*func)(int, char **const);
+	int req_argc; //include cmd itself
 	char *help;
+	char *syntax;
 } bl_cmd_t;
 
 typedef int (*cmd_act_fp)(int, char**, int, void**);
@@ -76,6 +78,8 @@ typedef struct {
 	char buf[];
 } line_t;
 
+void bl_cmd_syntax(bl_cmd_t *cmd);
+int bl_ctab_lookup(char *cmdline, const cmd_tab_t *ctab, cmd_act_fp action);
 void bl_main_loop(char *buf, int sz, unsigned char line_sz);
 
 extern bl_cmd_t __start_bl_cmd, __stop_bl_cmd;
