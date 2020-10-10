@@ -67,8 +67,8 @@ typedef struct {
 typedef int (*cmd_act_fp)(int, char**, int, void**);
 
 typedef struct {
-	char **start;
-	char **end;
+	bl_cmd_t **start;
+	bl_cmd_t **end;
 } cmd_tab_t;
 
 typedef struct {

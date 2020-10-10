@@ -7,8 +7,8 @@ static int bl_cmd_run(int ac, char** av, int cc, void **_cv);
 static int bl_ctab_cmplt(int ac, char** av, int cc, void **_cv);
 
 const cmd_tab_t cmd_tab = {
-	.start = (char **)&__start_bl_cmd,
-	.end = (char **)&__stop_bl_cmd,
+	.start = (bl_cmd_t **)&__start_bl_cmd,
+	.end = (bl_cmd_t **)&__stop_bl_cmd,
 };
 
 static inline int is_plain_char(const char c) {
@@ -451,7 +451,9 @@ int bl_ctab_lookup(char *cmdline, const cmd_tab_t *ctab, cmd_act_fp action) {
 		argv[0] = "*";
 	}
 
-	cmdv = __builtin_alloca(sizeof(void *) * (ctab->end - ctab->start) / sizeof(bl_cmd_t));
+	cmdv = __builtin_alloca(
+		sizeof(void *) *
+		((bl_cmd_t *)ctab->end - (bl_cmd_t *)ctab->start));
 	cmdc = bl_cmd_retrieve(argv[0], ctab, cmdv);
 
 	return action(argc, argv, cmdc, cmdv);
