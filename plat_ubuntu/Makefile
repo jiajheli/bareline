@@ -1,3 +1,4 @@
+common_src += printf.c
 plat_src := bareline_example.c
 
 BIN := demo.out
