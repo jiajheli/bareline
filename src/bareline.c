@@ -445,7 +445,9 @@ static int bl_ctab_match(const char *input, const char *cmd) {
 		_cmd++;
 	}
 
-	if ((!not_space_eol(*_input)) || (*_input == '*')) {
+	if ((!not_space_eol(*_input)) ||
+			(*_input == '*') ||
+			((*_input == '.') && (*_cmd == 0))) {
 		return BL_MATCH_SOME;
 	} else {
 		return BL_MATCH_NONE;
@@ -494,9 +496,16 @@ int bl_ctab_lookup(char *cmdline, const cmd_tab_t *ctab, cmd_act_fp action) {
 **************************/
 static int bl_ctab_cmplt(int ac, char** av, int cc, void **_cv) {
 	bl_cmd_t **cv = (bl_cmd_t **)_cv;
+	char *input;
 
 	if ((ac < 2) && cc) {
 		if (cc == 1) {
+			input = av[0];
+			while (*input) {
+				if ((*input++) == '.') {
+					return 0;
+				}
+			}
 			return bl_n_strcpy(av[0], (*cv)->cmd);
 		} else {
 			bl_puts("\n");
