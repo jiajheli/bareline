@@ -389,8 +389,31 @@ void bl_cmd_syntax(bl_cmd_t *cmd) {
 	return;
 }
 
+static int bl_cmd_run_cmdlen(const char *cmd) {
+	int l = 0;
+	while (not_space_eol(*cmd++) && (++l)) {
+		;
+	}
+	return l;
+}
+
 static int bl_cmd_run(int ac, char** av, int cc, void **_cv) {
 	bl_cmd_t **cv = (bl_cmd_t **)_cv;
+	int av_len, cv_len, i;
+
+	if (cc > 1) {
+		av_len = bl_cmd_run_cmdlen(av[0]);
+
+		i = 0;
+		do {
+			cv_len = bl_cmd_run_cmdlen(cv[i]->cmd);
+			if (cv_len == av_len) {
+				cc = 1;
+				cv[0] = cv[i];
+				break;
+			}
+		} while (++i < cc);
+	}
 
 	if (cc == 1) {
 		if (ac < cv[0]->req_argc) {
@@ -400,8 +423,15 @@ static int bl_cmd_run(int ac, char** av, int cc, void **_cv) {
 		} else {
 			return cv[0]->func(ac, av);
 		}
+	} else if (cc > 1) {
+		bl_puts("EE: ambiguous command: ");
+		for (i=0; i<cc; i++) {
+			bl_printf("%s, ", cv[i]->cmd);
+		}
+		bl_printf("%c%c \n", K_BSP, K_BSP);
+	} else {
+		bl_puts("EE: command not found\n");
 	}
-	bl_puts("EE: command not found\n");
 	return 0;
 }
 
