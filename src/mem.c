@@ -40,9 +40,11 @@ typedef unsigned int uint;
 typedef unsigned short u16;
 typedef unsigned char u8;
 
+#ifndef STDIO_H
 static void puts(char *s) {
 	return bl_puts(s);
 }
+#endif
 
 static int cmd_get_data_size(char* arg, int default_size) {
   /* Check for a size specification .b, .w or .l. */
