@@ -13,7 +13,9 @@
 
 #define SECTION_BL_CMD __attribute__ ((section ("bl_cmd")))
 
-#define NULL ((void *)0)
+#ifndef NULL
+#	define NULL ((void *)0)
+#endif
 
 #define K_CTRL_A 0x01
 #define K_CTRL_B 0x02
