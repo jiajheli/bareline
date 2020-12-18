@@ -365,7 +365,7 @@ static int do_xmodem(int argc, char **argv) {
 
 	offset = bl_atoi(argv[1]);
 
-	bl_printf("## Waiting binary to 0x%08x ...\n", offset);
+	bl_printf("## Waiting binary to 0x%08lx ...\n", offset);
 
 	res = XmodemReceive(0, (void *)offset, 5 * 1024 * 1024, 1, 0);
 
