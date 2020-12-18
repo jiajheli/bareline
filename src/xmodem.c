@@ -95,8 +95,8 @@ static unsigned short crc16_ccitt(
 /***********************************************************************************************************************
  * Check block
  **********************************************************************************************************************/
-static int check(int crc, const unsigned char *buf, int sz) {
-	if (crc) {
+static int check(int _crc, const unsigned char *buf, int sz) {
+	if (_crc) {
 		unsigned short crc = crc16_ccitt(buf, sz);
 		unsigned short tcrc = (buf[sz] << 8) + buf[sz + 1];
 		if (crc == tcrc)
