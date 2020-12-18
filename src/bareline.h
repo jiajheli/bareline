@@ -43,7 +43,7 @@
 #define VT100_CURSOR_FW "\x1b[C"
 
 #define BL_REG_CMD(cmd, func, req, help, syntax) \
-	bl_cmd_t _bl_cmd_##cmd SECTION_BL_CMD = {#cmd, func, req, help, syntax}
+	const bl_cmd_t _bl_cmd_##cmd SECTION_BL_CMD = {#cmd, func, req, help, syntax}
 
 #define BL_MATCH_SOME 1
 #define BL_MATCH_NONE 0
