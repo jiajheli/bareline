@@ -343,16 +343,17 @@ static void bl_lb_exit(line_t *line, history_t *hist) {
 }
 
 static int bl_lb_enter(line_t *line, history_t *hist) {
-	int cont = 1;
+	int res = 0;
 
 	if (line->len) {
 		bl_hst_append_line(line, hist);
 		bl_puts("\n");
-		cont = !bl_ctab_lookup(line->buf, &cmd_tab, bl_cmd_run);
+		res = bl_ctab_lookup(line->buf, &cmd_tab, bl_cmd_run);
+		line->sz_b *= (!!line->buf[0]); //do_exit() makes buf[0] and further makes sz_b = 0
 		bl_lb_reset(line);
 	}
 
-	return cont;
+	return res;
 }
 
 static void bl_lb_get_history(line_t *line, history_t *hist, char dir) {
@@ -647,7 +648,7 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	history_t *hist;
 
 	char input;
-	int cont;
+	int cmd_res;
 
 	if (sz < line_sz_b) {
 		bl_puts("EE: line buffer too small\n");
@@ -661,19 +662,18 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	bl_hst_init(hist, sz - (hist->buf - buf));
 
 #if (TERM_KEY_TEST_MODE == 1)
-	bl_puts("Press 'CTRL + C' twice to exit key test mode\n");
+	bl_puts("Press 'CTRL + C' to exit key test mode\n");
 #else
 	show_banner();
 #endif
 
-	cont = 2;
-	while (cont) {
+	while (line->sz_b) {
 		input = bl_getc();
 
 #if (TERM_KEY_TEST_MODE == 1)
 		bl_printf("Glyph: %c, Dec: %d, Hex: %02x\n", input, input, input);
 		if (input == K_CTRL_C) {
-			cont--;
+			line->sz_b = 0;
 		}
 		continue;
 #endif
@@ -714,7 +714,10 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 		case K_LF:
 		case K_CR:
 			bl_putc_rn('\n');
-			cont = bl_lb_enter(line, hist);
+			cmd_res = bl_lb_enter(line, hist);
+			if (cmd_res) {
+				bl_printf("EE: return value: %d\n", cmd_res);
+			}
 			bl_putc(']');
 			break;
 		case K_TAB:

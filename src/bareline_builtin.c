@@ -4,7 +4,8 @@
 	command: exit
 **************************/
 static int do_exit(int argc, char **argv) {
-	return 1;
+	argv[0][0] = 0;
+	return 0;
 }
 BL_REG_CMD(exit, do_exit, 1, "exit bareline", NULL);
 
