@@ -23,6 +23,11 @@
 #define K_CTRL_D 0x04
 #define K_CTRL_E 0x05
 #define K_CTRL_F 0x06
+/* #define K_CTRL_G 0x07 */
+/* #define K_CTRL_H 0x08 */
+/* #define K_CTRL_I 0x09 */
+/* #define K_CTRL_J 0x0a */
+#define K_CTRL_K 0x0b
 #define K_CTRL_N 0x0e
 #define K_CTRL_P 0x10 //CTRL+P, prev. in history
 
@@ -39,8 +44,11 @@
 #define K_RIGHT 'C'
 #define K_LEFT 'D'
 
-#define VT100_ERASE_LINE "\r\x1b[2K]"
 #define VT100_CURSOR_FW "\x1b[C"
+#define VT100_CURSOR_BW "\x1b[D"
+#define VT100_CURSOR_DEL "\x1b[P"
+#define VT100_CURSOR_INSERT "\x1b[@"
+#define VT100_ERASE_CURSOR_END "\x1b[K"
 
 #define BL_REG_CMD(cmd, func, req, help, syntax) \
 	const bl_cmd_t _bl_cmd_##cmd SECTION_BL_CMD = {#cmd, func, req, help, syntax}

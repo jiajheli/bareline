@@ -51,6 +51,7 @@ Bareline comes with some common key bindings:
 | `ctrl` + `d` | delete char. to the right of cursor |
 | `ctrl` + `e` | move cursor to end of line |
 | `ctrl` + `f` | move cursor right |
+| `ctrl` + `k` | delete char. from the cursor through the end of the line |
 | `ctrl` + `n` | get newer history |
 | `ctrl` + `p` | get older history |
 

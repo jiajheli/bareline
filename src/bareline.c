@@ -261,7 +261,7 @@ static void bl_lb_init(line_t *line, unsigned char sz_b) {
 }
 
 static void bl_lb_add_char(line_t *line, history_t *hist, char input) {
-	int pos;
+	int lb_pos;
 
 	if (line->len < line->sz_b) {
 		if (!(is_plain_char(input))) {
@@ -269,12 +269,15 @@ static void bl_lb_add_char(line_t *line, history_t *hist, char input) {
 			return;
 		}
 
-		pos = line->len++;
-		while (pos != line->cursor) {
-			line->buf[pos] = line->buf[pos-1];
-			pos--;
+		bl_puts(VT100_CURSOR_INSERT);
+		bl_putc(input);
+
+		lb_pos = line->len++;
+		while (lb_pos != line->cursor) {
+			line->buf[lb_pos] = line->buf[lb_pos-1];
+			lb_pos--;
 		}
-		line->buf[pos] = input;
+		line->buf[lb_pos] = input;
 		line->cursor++;
 	}
 	return;
@@ -283,32 +286,54 @@ static void bl_lb_add_char(line_t *line, history_t *hist, char input) {
 static void bl_lb_del_char(line_t *line, history_t *hist) {
 	int cur;
 
-	if (line->cursor) {
-		cur = --line->cursor;
-		bl_n_strcpy(&line->buf[cur], &line->buf[cur+1]);
+	if (line->len) {
+		bl_puts(VT100_CURSOR_DEL);
 		line->len--;
+		cur = line->cursor;
+		bl_n_strcpy(&line->buf[cur], &line->buf[cur+1]);
 	}
 
 	return;
 }
 
 static void bl_lb_cursor_head(line_t *line, history_t *hist) {
-	line->cursor = 0;
+	if (line->cursor) {
+		bl_puts("\r]");
+		line->cursor = 0;
+	}
 	return;
 }
 
 static void bl_lb_cursor_end(line_t *line, history_t *hist) {
-	line->cursor = line->len;
+	if (line->cursor != line->len) {
+		bl_puts(&line->buf[line->cursor]);
+		line->cursor = line->len;
+	}
 	return;
 }
 
 static void bl_lb_cursor_left(line_t *line, history_t *hist) {
-	line->cursor -= line->cursor > 0;
+	if (line->cursor) {
+		bl_puts(VT100_CURSOR_BW);
+		line->cursor--;
+	}
 	return;
 }
 
 static void bl_lb_cursor_right(line_t *line, history_t *hist) {
-	line->cursor += (line->cursor < line->len);
+	if (line->cursor < line->len) {
+		bl_puts(VT100_CURSOR_FW);
+		line->cursor++;
+	}
+	return;
+}
+
+static void bl_lb_erase_cursor_end(line_t *line, history_t *hist) {
+	if (line->cursor < line->len) {
+		bl_puts(VT100_ERASE_CURSOR_END);
+		line->buf[line->cursor] = 0;
+		line->len = line->cursor;
+	}
 	return;
 }
 
@@ -337,9 +362,12 @@ static void bl_lb_get_history(line_t *line, history_t *hist, char dir) {
 		bl_hst_get_next(line, hist);
 	}
 
-	bl_lb_reset(line);
 	line->cursor = bl_n_strcpy(line->buf, &hist->buf[hist->cur]);
 	line->len = line->cursor;
+
+	bl_puts("\r]");
+	bl_puts(line->buf);
+	bl_puts(VT100_ERASE_CURSOR_END);
 
 	return;
 }
@@ -619,7 +647,6 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 	history_t *hist;
 
 	char input;
-	int repos;
 	int cont;
 
 	if (sz < line_sz_b) {
@@ -665,6 +692,9 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 		case K_CTRL_F:
 			bl_lb_cursor_right(line, hist);
 			break;
+		case K_CTRL_K:
+			bl_lb_erase_cursor_end(line, hist);
+			break;
 		case K_CTRL_N:
 		case K_CTRL_P:
 			bl_lb_get_history(line, hist, input);
@@ -673,9 +703,9 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 			input = bl_lb_vt100_udlr(line, hist);
 			goto __reentrant_for_vt100;
 			break;
-		case K_CTRL_D:
-			bl_lb_cursor_right(line, hist);
 		case K_BSP:
+			bl_lb_cursor_left(line, hist);
+		case K_CTRL_D:
 			bl_lb_del_char(line, hist);
 			break;
 		case K_CTRL_C:
@@ -683,7 +713,9 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 			// let "K_LF/K_CR" (ENTER) applies "exit" command
 		case K_LF:
 		case K_CR:
+			bl_putc_rn('\n');
 			cont = bl_lb_enter(line, hist);
+			bl_putc(']');
 			break;
 		case K_TAB:
 			bl_lb_auto_complete(line, hist);
@@ -696,17 +728,6 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 		bl_dbg_dump_line(line);
 		bl_dbg_dump_history(hist);
 #endif
-
-		/* Output line buffer */
-		bl_puts(VT100_ERASE_LINE);
-		bl_puts(line->buf);
-
-		/* Refine cursor pos */
-		bl_putc('\r');
-		repos = line->cursor;
-		do {
-			bl_puts(VT100_CURSOR_FW);
-		} while (repos--);
 	}
 	return;
 }
