@@ -15,12 +15,16 @@ static inline int is_plain_char(const char c) {
 	return ((c >= 32) && (c < 127));
 }
 
+static inline int is_hist_line_ind(const char c) {
+	return (c & 0x80);
+}
+
 /* non-standard strcpy: returns len */
 static int bl_n_strcpy(char *_dst, char *_src) {
 	char *dst = _dst;
 	char *src = _src;
 
-	while (*src) {
+	while (is_plain_char(*src)) {
 		*dst++ = *src++;
 	}
 	*dst = 0;
@@ -152,44 +156,38 @@ static void bl_hst_append_line(line_t *line, history_t *hist) {
 	int cur = hist->next;
 
 	cur += bl_n_strcpy(&hist->buf[cur], line->buf);
-	hist->buf[cur++] = 0;
-	hist->buf[cur++] = line->len;
+	hist->buf[cur++] = (0x80 | line->len);
 
-	if ((cur + line->sz_b + 2) > hist->sz_b) { //+2 for EOL & line len.
+	if ((cur + line->sz_b + 1) > hist->sz_b) { //+2 for EOL & line len.
 		bl_memset(&hist->buf[cur], 0, hist->sz_b - cur);
 		cur = 0;
 	}
 
 	hist->next = cur;
 
-	if (hist->buf[cur]) {
-		while (hist->buf[cur]) {
-			hist->buf[cur++] = 0;
-		}
-		hist->buf[++cur] = 0;
-	}
+	while (is_plain_char(hist->buf[cur])) {
+		hist->buf[cur++] = 0;
+	};
+	hist->buf[cur] = 0;
 
-	hist->latest = hist->next;
 	hist->cur = hist->next;
 
 	return;
 }
 
 static void bl_hst_get_next(line_t *line, history_t *hist) {
-	int this_line_ind;
 	int next_line_head;
 
 	if (hist->cur == hist->next) {
 		return;
 	}
 
-	this_line_ind = hist->cur;
-	while (hist->buf[this_line_ind++]) {
+	next_line_head = hist->cur;
+	while (!is_hist_line_ind(hist->buf[next_line_head++])) {
 		;
 	}
 
-	next_line_head = this_line_ind + 1;
-	while (hist->buf[next_line_head] == 0) {
+	while (!is_plain_char(hist->buf[next_line_head])) {
 		if (next_line_head == hist->next) {
 			break;
 		}
@@ -197,13 +195,10 @@ static void bl_hst_get_next(line_t *line, history_t *hist) {
 			next_line_head = 0;
 			break;
 		}
-		next_line_head++;
+		next_line_head++ ;
 	}
 
 	hist->cur = next_line_head;
-	if (hist->cur == hist->next) {
-		hist->latest = hist->cur;
-	}
 
 	return;
 }
@@ -212,24 +207,22 @@ static void bl_hst_get_prev(line_t *line, history_t *hist) {
 	int prev_line_ind;
 	int prev_line_head;
 
-	prev_line_ind = (hist->cur + hist->sz_b - 1) % (hist->sz_b);
+	prev_line_ind = hist->cur;
 
-	//skip trailing white spaces
-	while (hist->buf[prev_line_ind] == 0) {
+	//find prev. line indicator.
+	do {
 		prev_line_ind = (prev_line_ind + hist->sz_b - 1) % (hist->sz_b);
+	} while (
+		(prev_line_ind != hist->next) && //before wrap-around, and
+		(!is_hist_line_ind(hist->buf[prev_line_ind]))); //not prev. line indicator
+
+	if (prev_line_ind == hist->next) { //traversed the whole hist. buf. and find no older line
+		return;
 	}
 
-	//prev_line_ind is line length indicator;
-	//from indicator finds head
-	prev_line_head = prev_line_ind - 1 - hist->buf[prev_line_ind];
+	prev_line_head = prev_line_ind - (hist->buf[prev_line_ind] & 0x7f);
 
-	if (prev_line_head != hist->latest) {
-		hist->cur = prev_line_head;
-	}
-
-	if (hist->latest == hist->next) {
-		hist->latest = hist->cur;
-	}
+	hist->cur = prev_line_head;
 
 	return;
 }
@@ -237,7 +230,6 @@ static void bl_hst_get_prev(line_t *line, history_t *hist) {
 static void bl_hst_init(history_t *hist, const int sz) {
 	hist->sz_b = sz;
 	hist->next = 0;
-	hist->latest = 0;
 	hist->cur = 0;
 	bl_memset(hist->buf, 0, sz);
 
@@ -331,7 +323,7 @@ static void bl_lb_cursor_right(line_t *line, history_t *hist) {
 static void bl_lb_erase_cursor_end(line_t *line, history_t *hist) {
 	if (line->cursor < line->len) {
 		bl_puts(VT100_ERASE_CURSOR_END);
-		line->buf[line->cursor] = 0;
+		bl_memset(&line->buf[line->cursor], 0, line->len - line->cursor);
 		line->len = line->cursor;
 	}
 	return;
@@ -364,6 +356,9 @@ static void bl_lb_get_history(line_t *line, history_t *hist, char dir) {
 	}
 
 	line->cursor = bl_n_strcpy(line->buf, &hist->buf[hist->cur]);
+	if (line->len > line->cursor) {
+		bl_memset(&line->buf[line->cursor], 0, line->len - line->cursor);
+	}
 	line->len = line->cursor;
 
 	bl_puts("\r]");
@@ -553,18 +548,17 @@ static int bl_ctab_cmplt(int ac, char** av, int cc, void **_cv) {
 **************************/
 #if (BL_DEBUG == 1)
 static void bl_dbg_dump_history(history_t *hist) {
-	int i, cur, next, latest;
+	int i, cur, next;
 	char *buf;
 
 	next = hist->next;
 	cur = hist->cur;
-	latest = hist->latest;
 	buf = hist->buf;
 
 	bl_printf(
 		"\nDD: history: %p, buf: %p, sizeof(history_t): %d, sizeof(buf): %d",
 		hist, (void *)buf, sizeof(history_t), hist->sz_b);
-	bl_printf("\nDD: next: %d, cur: %d, latest: %d", next, cur, latest);
+	bl_printf("\nDD: next: %d, cur: %d", next, cur);
 
 	i = 0;
 	while (i < hist->sz_b) {
@@ -573,12 +567,6 @@ static void bl_dbg_dump_history(history_t *hist) {
 		}
 
 		bl_putc(' ');
-		if ((i > 2) && (buf[i-2] == 0) && (buf[i-1])) {
-			bl_puts("\b.");
-		}
-		if (i == latest) {
-			bl_puts("\b^");
-		}
 		if (i == cur) {
 			bl_puts("\b>");
 		}
@@ -588,10 +576,10 @@ static void bl_dbg_dump_history(history_t *hist) {
 
 		if (buf[i] == 0) {
 			bl_puts("_");
-		} else if (i && (buf[i-1] == 0)) {
-			bl_dbg_printf("%x", buf[i]);
-		} else {
+		} else if (is_plain_char(buf[i])) {
 			bl_putc(buf[i]);
+		} else {
+			bl_putc('#');
 		}
 		i++;
 	}

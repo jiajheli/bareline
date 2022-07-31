@@ -59,7 +59,6 @@
 typedef struct {
 	short sz_b; //size of buf[]
 
-	short latest;
 	short next; //start of an empty line
 	short cur;
 
