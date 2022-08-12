@@ -337,9 +337,10 @@ static void bl_lb_exit(line_t *line, history_t *hist) {
 static int bl_lb_enter(line_t *line, history_t *hist) {
 	int res = 0;
 
+	bl_putc_rn('\n');
+
 	if (line->len) {
 		bl_hst_append_line(line, hist);
-		bl_puts("\n");
 		res = bl_ctab_lookup(line->buf, &cmd_tab, bl_cmd_run);
 		line->sz_b *= (!!line->buf[0]); //do_exit() makes buf[0] and further makes sz_b = 0
 		bl_lb_reset(line);
@@ -701,7 +702,6 @@ void bl_main_loop(char *buf, int sz, unsigned char line_sz_b) {
 			// let "K_LF/K_CR" (ENTER) applies "exit" command
 		case K_LF:
 		case K_CR:
-			bl_putc_rn('\n');
 			cmd_res = bl_lb_enter(line, hist);
 			if (cmd_res) {
 				bl_printf("EE: return value: %d\n", cmd_res);
